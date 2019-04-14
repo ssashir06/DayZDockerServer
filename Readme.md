@@ -33,7 +33,7 @@ In addition, Using Dayz Launcher is easier to use because it can specify the ser
 Please do not make the server's image which named 'dayzdockerserver' public like in DockerHub because it contains licensed files of DayZ Server.
 
 # Current issues
-X3DAudio1_7.dll and XAPOFX1_5.dll cannot be copied from build image, because installation of DirectX failure.
+X3DAudio1_7.dll and XAPOFX1_5.dll cannot be copied from build image, because of the installation of DirectX failure.
 
 # TODO
 - Creating a docker compose file.
