@@ -1,0 +1,29 @@
+version: '2.4' 
+services:
+  server:
+    build:
+      context: .\DayZDockerServer
+      args:
+        - steamlogin
+        - steampasswd
+        - steamguard
+    isolation: process
+    ports:
+      - "2302/tcp"
+      - "27015-27030/tcp"
+      - "27036-27037/tcp"
+      - "2302/udp"
+      - "4380/udp"
+      - "27000-27031/udp"
+      - "27036/udp"
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.99
+networks:
+  app_net:
+    driver: nat
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24
+        gateway: 172.16.238.1
