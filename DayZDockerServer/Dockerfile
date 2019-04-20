@@ -33,11 +33,14 @@ SHELL ["PowerShell.exe", "-Command", "$ErrorActionPreference = 'Stop'; $Progress
 COPY --from=builder C:\windows\system32\msvcp140.dll C:\windows\system32
 COPY --from=builder C:\windows\system32\vcruntime140.dll C:\windows\system32
 COPY --from=builder C:\DayZServer C:\DayZServer
+COPY run.ps1 C:\DayZServer
 COPY X3DAudio1_7.dll C:\DayZServer
 COPY XAPOFX1_5.dll C:\DayZServer
-WORKDIR C:\DayZServer
 
+VOLUME C:\DayZProfiles
+VOLUME C:\DayZConfig
+VOLUME C:\DayZMission
+
+WORKDIR C:\DayZServer
 EXPOSE 2302/tcp 27015-27030/tcp 27036-27037/tcp 2302/udp 4380/udp 27000-27031/udp 27036/udp
-ENTRYPOINT PowerShell.exe -Command `
-    Set-Location C:\DayZServer ;`
-    Start-Process -Wait .\DayZServer_x64.exe -ArgumentList "-config=serverDZ.cfg -port=2302 -dologs -adminlog -netlog -freezecheck" ;
+ENTRYPOINT [ "PowerShell.exe", "-Command", "C:\\DayZServer\\run.ps1" ]

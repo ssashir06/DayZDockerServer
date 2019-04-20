@@ -1,2 +1,5 @@
 /DayZDockerServer/X3DAudio1_7.dll
 /DayZDockerServer/XAPOFX1_5.dll
+/DayZConfig/**
+/DayZProfiles/**
+/DayZMission/**
