@@ -39,7 +39,8 @@ COPY XAPOFX1_5.dll C:\DayZServer
 
 VOLUME C:\DayZProfiles
 VOLUME C:\DayZConfig
+VOLUME C:\DayZMission
 
 WORKDIR C:\DayZServer
 EXPOSE 2302/tcp 27015-27030/tcp 27036-27037/tcp 2302/udp 4380/udp 27000-27031/udp 27036/udp
-ENTRYPOINT PowerShell.exe -Command C:\DayZServer\run.ps1
+ENTRYPOINT [ "PowerShell.exe", "-Command", "C:\\DayZServer\\run.ps1" ]

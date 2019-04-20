@@ -14,6 +14,7 @@ services:
     volumes:
         - .\DayZProfiles:C:\DayZProfiles
         - .\DayZConfig:C:\DayZConfig
+        - .\DayZMission:C:\DayZMission
 networks:
   app_net:
     driver: nat
@@ -25,3 +26,4 @@ networks:
 volumes:
   DayZProfiles:
   DayZConfig:
+  DayZMission:

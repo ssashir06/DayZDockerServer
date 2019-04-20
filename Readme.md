@@ -3,8 +3,8 @@ Running DayZ Server on Docker.
 
 # Requirements
 - Your Steam account
-- Windows Container
-- Windows 10 build 1809 or above
+- Docker Desktop
+- Windows 10 version 1809 or above
 
 # Usage
 ## Preparation
@@ -40,8 +40,8 @@ X3DAudio1_7.dll and XAPOFX1_5.dll cannot be copied from build image, because of 
 
 # TODO
 - Creating a volume to customize configuration.
-- Persistence data like loots.
 
 # Links
-- https://write.corbpie.com/installing-and-setting-up-a-dayz-standalone-server-on-windows-server-2016-guide/
+- https://community.bistudio.com/wiki/DayZ:Server_Configuration
 - https://developer.valvesoftware.com/wiki/Command_Line_Options#SteamCMD
+- https://write.corbpie.com/installing-and-setting-up-a-dayz-standalone-server-on-windows-server-2016-guide/
