@@ -2,27 +2,15 @@ version: '2.4'
 services:
   server:
     build:
-      context: .\DayZDockerServer
+      context: ./DayZDockerServer
       args:
         - steamlogin
         - steampasswd
         - steamguard
-    isolation: process
-    networks:
-      app_net:
-        ipv4_address: 172.16.238.99
     volumes:
-        - .\DayZProfiles:C:\DayZProfiles
-        - .\DayZConfig:C:\DayZConfig
-        - .\DayZMission:C:\DayZMission
-networks:
-  app_net:
-    driver: nat
-    ipam:
-      driver: default
-      config:
-      - subnet: 172.16.238.0/24
-        gateway: 172.16.238.1
+        - ./DayZProfiles:/DayZProfiles
+        - ./DayZConfig:/DayZConfig
+        - ./DayZMission:/DayZMission
 volumes:
   DayZProfiles:
   DayZConfig:

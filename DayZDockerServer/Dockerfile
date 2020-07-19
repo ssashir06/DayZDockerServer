@@ -1,46 +1,47 @@
-#escape=`
-ARG tag=1809
-
-## get steamcmd.zip and extract
-FROM mcr.microsoft.com/windows/servercore:${tag} AS builder
-SHELL ["PowerShell.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-WORKDIR C:\Installer
-### Install Microsoft Visual C++ 2015 Redistributable Update 3
-ADD https://download.microsoft.com/download/0/6/4/064F84EA-D1DB-4EAA-9A5C-CC2F0FF6A638/vc_redist.x64.exe vc_redist.x64.exe
-RUN Start-Process -FilePath '.\vc_redist.x64.exe' -ArgumentList '/install /passive /norestart' -Wait;
-### Install DirectX (for XAPOFX1_5.dll)
-ADD https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe dxwebsetup.exe
-RUN Start-Process -FilePath '.\dxwebsetup.exe' -ArgumentList '/Q' -Wait;
-### Setting up steamcmd.exe
-ADD https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip steamcmd.zip
-RUN Expand-Archive -Path steamcmd.zip ; `
-    $ErrorActionPreference='Continue'; `
-    & steamcmd\steamcmd.exe +quit ; `
-    Exit-PSSession ;
+# Download server
+FROM cm2network/steamcmd AS builder
 ### Login and install DayZ Server ..
-ARG steamlogin
-ARG steampasswd
+WORKDIR /home/steam
+ARG steamlogin=anonymous
+ARG steampasswd=
 ARG steamguard=
-ENV steamlogin=${steamlogin}
-ENV steampasswd=${steampasswd}
-ENV steamguard=${steamguard}
-RUN Write-Output "LOGIN:$ENV:steamlogin" ; `
-    & steamcmd\steamcmd.exe +login $ENV:steamlogin $ENV:steampasswd $ENV:steamguard +force_install_dir C:\DayZServer +app_update 223350 +quit ;
+RUN steamcmd/steamcmd.sh \
+    +login ${steamlogin} $steampasswd ${steamguard} \
+    +force_install_dir ~/DayZServer \
+    +@sSteamCmdForcePlatformType windows +@sSteamCmdForcePlatformBitness 64 \
+    +app_update 223350 \
+    +quit
 
-## setting up server
-FROM mcr.microsoft.com/windows/servercore:${tag} AS server
-SHELL ["PowerShell.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-COPY --from=builder C:\windows\system32\msvcp140.dll C:\windows\system32
-COPY --from=builder C:\windows\system32\vcruntime140.dll C:\windows\system32
-COPY --from=builder C:\DayZServer C:\DayZServer
-COPY run.ps1 C:\DayZServer
-COPY X3DAudio1_7.dll C:\DayZServer
-COPY XAPOFX1_5.dll C:\DayZServer
+# Wine env
+FROM mcr.microsoft.com/powershell:lts-ubuntu-bionic AS wine-env
+USER root
+WORKDIR /root
+RUN apt-get update && apt-get install -y wget gnupg2 software-properties-common xvfb cabextract dos2unix p7zip-full winbind zip unzip
+RUN dpkg --add-architecture i386
+RUN wget -O - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - &&\
+    apt-add-repository 'deb http://dl.winehq.org/wine-builds/ubuntu/ bionic main' &&\
+    wget -O - https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key | apt-key add - &&\
+    sh -c 'echo "deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./" > /etc/apt/sources.list.d/obs.list'
+RUN apt-get update &&\
+    apt-get install -y --install-recommends winehq-stable &&\
+    apt-get clean
+RUN wget https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks -O /usr/local/bin/winetricks &&\
+    chmod +x /usr/local/bin/winetricks
+ENV WINEARCH win64
+ENV WINEPREFIX=/opt/win
+RUN mkdir -p $WINEPREFIX
+RUN winetricks win10
+RUN wineboot -r
 
-VOLUME C:\DayZProfiles
-VOLUME C:\DayZConfig
-VOLUME C:\DayZMission
+# setting up server
+FROM wine-env AS server
+COPY --from=builder /home/steam/DayZServer /DayZServer
+COPY run.sh /DayZServer
 
-WORKDIR C:\DayZServer
+VOLUME /DayZProfiles
+VOLUME /DayZConfig
+VOLUME /DayZMission
+
+WORKDIR /DayZServer
 EXPOSE 2302/tcp 27015-27030/tcp 27036-27037/tcp 2302/udp 4380/udp 27000-27031/udp 27036/udp
-ENTRYPOINT [ "PowerShell.exe", "-Command", "C:\\DayZServer\\run.ps1" ]
+ENTRYPOINT [ "/DayZServer/run.sh" ]
