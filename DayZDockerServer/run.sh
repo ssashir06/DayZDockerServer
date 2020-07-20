@@ -8,13 +8,6 @@ if [ ! -f "/DayZConfig/serverDZ.cfg" ]; then
     cp ./serverDZ.cfg /DayZConfig
 fi
 
-# copy mission file and make a link
-if [ ! -f /DayZMission/mpmissions ]; then
-    echo "Copying default mpmissions"
-    cp -r ./mpmissions /DayZMission/mpmissions
-fi
-rm -rf ./mpmissions
-ln -s /DayZMission/mpmissions ./mpmissions
 
 # run dbus
 service dbus start
